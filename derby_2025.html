@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卒論ダービー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'MS Gothic', 'Osaka-Mono', monospace;
+            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            background: linear-gradient(90deg, #8B4513 0%, #A0522D 50%, #8B4513 100%);
+            border: 3px solid #FFD700;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            letter-spacing: 5px;
+        }
+
+        .subtitle {
+            color: #FFF8DC;
+            margin-top: 10px;
+            font-size: 1.1em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            background: linear-gradient(180deg, #4a7c59 0%, #2d5a3d 100%);
+            border: 2px solid #FFD700;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: linear-gradient(180deg, #5a8c69 0%, #3d6a4d 100%);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.4);
+        }
+
+        .content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            color: #000;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        .race-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .race-table th {
+            background: linear-gradient(180deg, #8B4513 0%, #654321 100%);
+            color: #FFD700;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #FFD700;
+            font-size: 1.1em;
+        }
+
+        .race-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+            background: #fff;
+        }
+
+        .race-table tr:nth-child(even) td {
+            background: #f9f9f9;
+        }
+
+        .race-table tr:hover td {
+            background: #fff8dc;
+        }
+
+        .horse-number {
+            font-weight: bold;
+            font-size: 1.3em;
+            color: #8B4513;
+        }
+
+        .odds {
+            color: #FF4500;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .predictions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .prediction-card {
+            background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border: 3px solid #FFD700;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .prediction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #FFD700;
+        }
+
+        .prediction-author {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .prediction-type {
+            background: #8B4513;
+            color: #FFD700;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .horse-info {
+            background: #fff;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border-left: 4px solid #FFD700;
+        }
+
+        .horse-info-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .horse-number-badge {
+            background: #8B4513;
+            color: #FFD700;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .horse-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .horse-odds {
+            margin-left: auto;
+            color: #FF4500;
+            font-weight: bold;
+        }
+
+        .horse-theme {
+            color: #666;
+            font-size: 0.9em;
+            margin-left: 40px;
+            line-height: 1.4;
+        }
+
+        .add-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border: none;
+            font-size: 2em;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+
+        .add-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 7px 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+        background: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        max-width: 500px;
+        width: 90%;
+        color: #000;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        max-height: 90vh;   /* 画面の高さの90%を上限にする */
+        overflow-y: auto;   /* 中身がはみ出したら縦スクロールバーを出す */
+        }
+
+        .modal h2 {
+            color: #8B4513;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #FFD700;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-cancel {
+            background: #999;
+            color: #fff;
+        }
+
+        .btn-cancel:hover {
+            background: #777;
+        }
+
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .selection-btn {
+            padding: 15px;
+            border: 2px solid #ddd;
+            background: #fff;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .selection-btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+
+        .selection-btn.selected {
+            background: #FFD700;
+            border-color: #FFA500;
+            color: #000;
+            box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .selection-btn-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .selection-btn-number {
+            background: #8B4513;
+            color: #FFD700;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .selection-btn-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #333;
+            flex: 1;
+        }
+
+        .selection-btn-odds {
+            color: #FF4500;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .selection-btn-theme {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .result-section {
+            margin-top: 30px;
+        }
+
+        .result-item {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            color: #000;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .result-rank {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .result-horse-name {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .result-theme {
+            font-size: 0.9em;
+            font-weight: normal;
+            color: #555;
+            margin-top: 5px;
+            padding-left: 10px;
+            border-left: 3px solid #8B4513;
+        }
+        .winner-card {
+            background: linear-gradient(135deg, #fff5e6 0%, #fff 100%);
+            border: 3px solid #ff4500; /* 赤枠で強調 */
+            box-shadow: 0 0 15px rgba(255, 69, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 「的中」スタンプ風デザイン */
+        .hit-badge {
+            position: absolute;
+            top: 10px;
+            right: -30px;
+            background: #ff4500;
+            color: white;
+            padding: 5px 40px;
+            transform: rotate(45deg);
+            font-weight: bold;
+            font-size: 0.9em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        .winner-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #d32f2f;
+            margin-bottom: 10px;
+        }
+
+        .winner-detail {
+            background: #ffecb3;
+            padding: 8px;
+            border-radius: 5px;
+            margin-top: 5px;
+            color: #5d4037;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏆 卒論ダービー 🏆</h1>
+            <p class="subtitle">令和の激戦！学問の頂点を目指せ！</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('shutsuba')">出馬表</div>
+            <div class="tab" onclick="switchTab('yosou')">予想一覧</div>
+            <div class="tab" onclick="switchTab('kekka')">最終結果</div>
+        </div>
+
+        <div id="shutsuba" class="content active">
+            <h2 style="color: #8B4513; text-align: center; margin-bottom: 20px;">📋 出馬表</h2>
+            <table class="race-table">
+                <thead>
+                    <tr>
+                        <th>馬番</th>
+                        <th>馬名（メンバー）</th>
+                        <th>卒論テーマ</th>
+                        <th>オッズ</th>
+                    </tr>
+                </thead>
+                <tbody id="horseTable">
+                    <!-- ここにデータを追加 -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="yosou" class="content">
+            <h2 style="color: #8B4513; text-align: center; margin-bottom: 20px;">🎯 予想一覧</h2>
+            <div class="predictions-grid" id="predictionsGrid">
+                <!-- 予想カードが追加される -->
+            </div>
+            <button class="add-button" onclick="openModal()">+</button>
+        </div>
+
+        <div id="kekka" class="content">
+            <h2 style="color: #8B4513; text-align: center; margin-bottom: 20px;">🎊 最終結果発表</h2>
+            
+            <div class="result-section" id="resultSection"></div>
+        
+            <div id="winnersArea" style="display: none; margin-top: 40px; border-top: 3px dashed #8B4513; padding-top: 20px;">
+                <h2 style="color: #d32f2f; text-align: center; margin-bottom: 20px; text-shadow: 1px 1px 0 #fff;">🎯 的中者一覧 🎯</h2>
+                <div class="predictions-grid" id="winnersGrid">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2>予想を追加</h2>
+            <div class="form-group">
+                <label>予想者名</label>
+                <input type="text" id="predictorName" placeholder="名前を入力">
+            </div>
+            <div class="form-group">
+                <label>券種</label>
+                <select id="betType" onchange="updateSelectionUI()">
+                    <option value="単勝">単勝</option>
+                    <option value="複勝">複勝</option>
+                    <option value="3連単">3連単</option>
+                    <option value="3連複">3連複</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label id="selectionLabel">馬番を選択</label>
+                <div class="selection-grid" id="selectionGrid">
+                    <!-- 馬番ボタンが追加される -->
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+                <button class="btn-submit" onclick="addPrediction()">予想を追加</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API_BASEを動的に設定（現在のホストとポートを使用）
+        const API_BASE = `${window.location.protocol}//${window.location.host}/api`;
+        
+        let horses = [];
+        let predictions = [];
+        let results = [];
+        let selectedNumbers = [];
+
+        // API呼び出し関数
+        async function fetchHorses() {
+            try {
+                const response = await fetch(`${API_BASE}/horses`);
+                horses = await response.json();
+                initHorseTable();
+            } catch (error) {
+                console.error('出馬データの取得エラー:', error);
+                alert('出馬データの取得に失敗しました');
+            }
+        }
+
+        async function fetchPredictions() {
+            try {
+                const response = await fetch(`${API_BASE}/predictions`);
+                predictions = await response.json();
+                renderPredictions();
+            } catch (error) {
+                console.error('予想データの取得エラー:', error);
+                alert('予想データの取得に失敗しました');
+            }
+        }
+
+        async function fetchResults() {
+            try {
+                const response = await fetch(`${API_BASE}/results`);
+                results = await response.json();
+                initResults();
+            } catch (error) {
+                console.error('結果データの取得エラー:', error);
+                alert('結果データの取得に失敗しました');
+            }
+        }
+
+        function initHorseTable() {
+            const tbody = document.getElementById('horseTable');
+            tbody.innerHTML = '';
+            horses.forEach(horse => {
+                const row = `
+                    <tr>
+                        <td class="horse-number">${horse.number}</td>
+                        <td><strong>${horse.name}</strong></td>
+                        <td>${horse.theme}</td>
+                        <td class="odds">${horse.odds}円</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function initResults() {
+            const section = document.getElementById('resultSection');
+            section.innerHTML = '';
+            
+            if (results.length === 0) {
+                section.innerHTML = '<p style="text-align:center;">結果はまだ登録されていません。</p>';
+                document.getElementById('winnersArea').style.display = 'none';
+                return;
+            }
+
+            // 結果の表示（既存の処理）
+            results.forEach(result => {
+                const medal = result.rank === 1 ? '🥇' : result.rank === 2 ? '🥈' : '🥉';
+                const horse = horses.find(h => h.number === result.horse_number); // 名前マッチではなくIDマッチの方が安全ですが、元のコードに合わせます
+                const horseName = horse ? horse.name : result.horse_name;
+                const theme = horse ? horse.theme : '（テーマ情報なし）';
+                
+                const item = `
+                    <div class="result-item">
+                        <div class="result-rank">${medal} 第${result.rank}位</div>
+                        <div class="result-horse-name">${result.horse_number}番 ${horseName}</div>
+                        <div class="result-theme">${theme}</div>
+                    </div>
+                `;
+                section.innerHTML += item;
+            });
+
+            // ★ここで的中判定を実行
+            checkWinners();
+        }
+
+        function checkWinners() {
+            const winnersGrid = document.getElementById('winnersGrid');
+            const winnersArea = document.getElementById('winnersArea');
+            winnersGrid.innerHTML = '';
+
+            // 結果が出ていなければ何もしない
+            if (results.length === 0) return;
+
+            // 結果データの整理（1着, 2着, 3着の馬番を取得）
+            const rank1 = results.find(r => r.rank === 1)?.horse_number;
+            const rank2 = results.find(r => r.rank === 2)?.horse_number;
+            const rank3 = results.find(r => r.rank === 3)?.horse_number;
+
+            // 3着まで確定していないと判定できない券種があるためチェック
+            const top3 = [rank1, rank2, rank3].filter(n => n != null);
+
+            let hitCount = 0;
+
+            predictions.forEach(pred => {
+                let isHit = false;
+                const pNums = pred.numbers.map(n => parseInt(n)); // 念のため数値化
+
+                // 判定ロジック
+                if (pred.bet_type === '単勝') {
+                    // 予想した1頭が1着なら当たり
+                    if (rank1 && pNums[0] === rank1) isHit = true;
+
+                } else if (pred.bet_type === '複勝') {
+                    // 予想した1頭が3着以内なら当たり
+                    if (top3.includes(pNums[0])) isHit = true;
+
+                } else if (pred.bet_type === '3連単') {
+                    // 1着,2着,3着の順番通り一致なら当たり
+                    if (rank1 && rank2 && rank3 && 
+                        pNums[0] === rank1 && pNums[1] === rank2 && pNums[2] === rank3) {
+                        isHit = true;
+                    }
+
+                } else if (pred.bet_type === '3連複') {
+                    // 選んだ3頭が1,2,3着に含まれていれば当たり（順不同）
+                    if (rank1 && rank2 && rank3) {
+                        const resultSet = new Set([rank1, rank2, rank3]);
+                        const predSet = new Set(pNums);
+                        // 3つとも一致しているか（集合の差がないか）
+                        if ([...predSet].every(num => resultSet.has(num))) {
+                            isHit = true;
+                        }
+                    }
+                }
+
+                // 的中時の表示作成
+                if (isHit) {
+                    hitCount++;
+                    const card = document.createElement('div');
+                    card.className = 'prediction-card winner-card';
+                    
+                    // 馬名の取得用
+                    const horseNames = pNums.map(num => {
+                        const h = horses.find(horse => horse.number === num);
+                        return h ? `${num}番 ${h.name}` : `${num}番`;
+                    }).join('<br>');
+
+                    card.innerHTML = `
+                        <div class="hit-badge">的中!</div>
+                        <div class="winner-name">🎉 ${pred.predictor_name}</div>
+                        <div class="prediction-type" style="display:inline-block; margin-bottom:5px;">${pred.bet_type}</div>
+                        <div class="winner-detail">
+                            ${horseNames}
+                        </div>
+                    `;
+                    winnersGrid.appendChild(card);
+                }
+            });
+
+            // 的中者がいればエリアを表示、いなければメッセージ
+            if (hitCount > 0) {
+                winnersArea.style.display = 'block';
+            } else {
+                winnersArea.style.display = 'block';
+                winnersGrid.innerHTML = '<p style="width:100%; text-align:center; font-size:1.2em; color:#fff; background:rgba(0,0,0,0.5); padding:20px; border-radius:10px;">的中者なし... 波乱の展開です！🌪️</p>';
+            }
+        }
+        function openModal() {
+            document.getElementById('modal').classList.add('active');
+            updateSelectionUI();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            selectedNumbers = [];
+            document.getElementById('predictorName').value = '';
+        }
+
+        function updateSelectionUI() {
+            const betType = document.getElementById('betType').value;
+            const grid = document.getElementById('selectionGrid');
+            const label = document.getElementById('selectionLabel');
+            
+            selectedNumbers = [];
+            grid.innerHTML = '';
+            
+            let maxSelect = 1;
+            if (betType === '複勝') maxSelect = 1;
+            else if (betType === '3連単' || betType === '3連複') maxSelect = 3;
+            
+            label.textContent = `馬を選択（${betType === '3連単' || betType === '3連複' ? '3頭' : '1頭'}）`;
+            
+            horses.forEach(horse => {
+                const btn = document.createElement('div');
+                btn.className = 'selection-btn';
+                btn.setAttribute('data-horse-number', horse.number);
+                btn.innerHTML = `
+                    <div class="selection-btn-header">
+                        <div class="selection-btn-number">${horse.number}</div>
+                        <div class="selection-btn-name">${horse.name}</div>
+                        <div class="selection-btn-odds">${horse.odds}円</div>
+                    </div>
+                    <div class="selection-btn-theme">${horse.theme}</div>
+                `;
+                btn.onclick = () => selectHorse(horse.number, maxSelect);
+                grid.appendChild(btn);
+            });
+        }
+
+        function selectHorse(number, maxSelect) {
+            const index = selectedNumbers.indexOf(number);
+            
+            if (index > -1) {
+                selectedNumbers.splice(index, 1);
+            } else {
+                if (selectedNumbers.length < maxSelect) {
+                    selectedNumbers.push(number);
+                }
+            }
+            
+            document.querySelectorAll('.selection-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                const horseNumber = parseInt(btn.getAttribute('data-horse-number'));
+                if (selectedNumbers.includes(horseNumber)) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+
+        async function addPrediction() {
+            const name = document.getElementById('predictorName').value;
+            const betType = document.getElementById('betType').value;
+            
+            if (!name || selectedNumbers.length === 0) {
+                alert('予想者名と馬番を入力してください');
+                return;
+            }
+            
+            const betTypeReq = betType === '3連単' || betType === '3連複' ? 3 : 1;
+            if (selectedNumbers.length !== betTypeReq) {
+                alert(`${betType}は${betTypeReq}頭選択してください`);
+                return;
+            }
+            
+            const prediction = {
+                predictor_name: name,
+                bet_type: betType,
+                numbers: [...selectedNumbers]
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/predictions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(prediction)
+                });
+                
+                if (response.ok) {
+                    await fetchPredictions();
+                    closeModal();
+                } else {
+                    const error = await response.json();
+                    alert('予想の追加に失敗しました: ' + error.error);
+                }
+            } catch (error) {
+                console.error('予想追加エラー:', error);
+                alert('予想の追加に失敗しました');
+            }
+        }
+
+        function renderPredictions() {
+            const grid = document.getElementById('predictionsGrid');
+            grid.innerHTML = '';
+            
+            predictions.forEach(pred => {
+                const card = document.createElement('div');
+                card.className = 'prediction-card';
+                
+                let horsesHTML = '';
+                pred.numbers.forEach((num, index) => {
+                    const horse = horses.find(h => h.number === num);
+                    if (horse) {
+                        const position = pred.bet_type === '3連単' ? `${index + 1}着予想` : '';
+                        horsesHTML += `
+                            <div class="horse-info">
+                                <div class="horse-info-header">
+                                    <div class="horse-number-badge">${horse.number}</div>
+                                    <div class="horse-name">${horse.name}</div>
+                                    <div class="horse-odds">${horse.odds}円</div>
+                                </div>
+                                <div class="horse-theme">${horse.theme}</div>
+                                ${position ? `<div style="margin-left: 40px; color: #8B4513; font-weight: bold; font-size: 0.85em; margin-top: 5px;">${position}</div>` : ''}
+                            </div>
+                        `;
+                    }
+                });
+                
+                card.innerHTML = `
+                    <div class="prediction-header">
+                        <div class="prediction-author">${pred.predictor_name}</div>
+                        <div class="prediction-type">${pred.bet_type}</div>
+                    </div>
+                    ${horsesHTML}
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            // タブ切り替え時にデータを再読み込み
+            if (tabName === 'shutsuba') {
+                fetchHorses();
+            } else if (tabName === 'yosou') {
+                fetchPredictions();
+            } else if (tabName === 'kekka') {
+                fetchResults();
+            }
+        }
+
+        // 初期化
+        async function init() {
+            await fetchHorses();
+            await fetchPredictions();
+            await fetchResults();
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卒論ダービー - 管理ページ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'MS Gothic', 'Osaka-Mono', monospace;
+            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            background: linear-gradient(90deg, #8B4513 0%, #A0522D 50%, #8B4513 100%);
+            border: 3px solid #FFD700;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            letter-spacing: 5px;
+        }
+
+        .subtitle {
+            color: #FFF8DC;
+            margin-top: 10px;
+            font-size: 1.1em;
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.4);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            background: linear-gradient(180deg, #4a7c59 0%, #2d5a3d 100%);
+            border: 2px solid #FFD700;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: linear-gradient(180deg, #5a8c69 0%, #3d6a4d 100%);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.4);
+        }
+
+        .content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            color: #000;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            color: #8B4513;
+            font-size: 1.8em;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            color: #fff;
+            padding: 5px 15px;
+            font-size: 0.9em;
+        }
+
+        .btn-edit:hover {
+            background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: #fff;
+            padding: 5px 15px;
+            font-size: 0.9em;
+        }
+
+        .btn-delete:hover {
+            background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #fff;
+        }
+
+        .data-table th {
+            background: linear-gradient(180deg, #8B4513 0%, #654321 100%);
+            color: #FFD700;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #FFD700;
+            font-size: 1.1em;
+        }
+
+        .data-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+            background: #fff;
+        }
+
+        .data-table tr:nth-child(even) td {
+            background: #f9f9f9;
+        }
+
+        .data-table tr:hover td {
+            background: #fff8dc;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            color: #000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal h2 {
+            color: #8B4513;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #FFD700;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-cancel {
+            background: #999;
+            color: #fff;
+        }
+
+        .btn-cancel:hover {
+            background: #777;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .status-message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔧 卒論ダービー管理ページ</h1>
+            <p class="subtitle">データベース管理システム</p>
+            <a href="/" class="nav-link">← トップページに戻る</a>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('horses')">出馬表管理</div>
+            <div class="tab" onclick="switchTab('predictions')">予想管理</div>
+            <div class="tab" onclick="switchTab('results')">最終結果管理</div>
+        </div>
+
+        <!-- 出馬表管理 -->
+        <div id="horses" class="content active">
+            <div class="section-header">
+                <h2>📋 出馬表管理</h2>
+                <button class="btn btn-primary" onclick="openHorseModal()">+ 新規追加</button>
+            </div>
+            <div id="horsesStatus"></div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>馬番</th>
+                        <th>メンバー名</th>
+                        <th>卒論テーマ</th>
+                        <th>オッズ</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="horsesTable">
+                    <!-- データがここに表示される -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 予想管理 -->
+        <div id="predictions" class="content">
+            <div class="section-header">
+                <h2>🎯 予想管理</h2>
+            </div>
+            <div id="predictionsStatus"></div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>予想者名</th>
+                        <th>券種</th>
+                        <th>選択馬番</th>
+                        <th>登録日時</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="predictionsTable">
+                    <!-- データがここに表示される -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 最終結果管理 -->
+        <div id="results" class="content">
+            <div class="section-header">
+                <h2>🎊 最終結果管理</h2>
+                <button class="btn btn-primary" onclick="openResultModal()">+ 新規追加</button>
+            </div>
+            <div id="resultsStatus"></div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>順位</th>
+                        <th>馬番</th>
+                        <th>メンバー名</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTable">
+                    <!-- データがここに表示される -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 出馬表モーダル -->
+    <div id="horseModal" class="modal">
+        <div class="modal-content">
+            <h2 id="horseModalTitle">出馬データを追加</h2>
+            <div id="horseModalStatus"></div>
+            <div class="form-group">
+                <label>馬番</label>
+                <input type="number" id="horseNumber" min="1" required>
+            </div>
+            <div class="form-group">
+                <label>メンバー名</label>
+                <input type="text" id="horseName" required>
+            </div>
+            <div class="form-group">
+                <label>卒論テーマ</label>
+                <input type="text" id="horseTheme" required>
+            </div>
+            <div class="form-group">
+                <label>オッズ</label>
+                <input type="number" id="horseOdds" step="0.1" min="0.1" required>
+            </div>
+            <div class="button-group">
+                <button class="btn-cancel" onclick="closeHorseModal()">キャンセル</button>
+                <button class="btn btn-primary" onclick="saveHorse()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 最終結果モーダル -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <h2 id="resultModalTitle">結果データを追加</h2>
+            <div id="resultModalStatus"></div>
+            <div class="form-group">
+                <label>順位</label>
+                <input type="number" id="resultRank" min="1" required>
+            </div>
+            <div class="form-group">
+                <label>出馬表から選択</label>
+                <select id="resultHorseSelect" onchange="updateResultHorseInfo()" required>
+                    <option value="">-- 選択してください --</option>
+                </select>
+            </div>
+            <div class="form-group" style="display: none;">
+                <label>馬番（自動入力）</label>
+                <input type="number" id="resultHorseNumber" readonly>
+            </div>
+            <div class="form-group" style="display: none;">
+                <label>メンバー名（自動入力）</label>
+                <input type="text" id="resultHorseName" readonly>
+            </div>
+            <div class="button-group">
+                <button class="btn-cancel" onclick="closeResultModal()">キャンセル</button>
+                <button class="btn btn-primary" onclick="saveResult()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API_BASEを動的に設定（現在のホストとポートを使用）
+        const API_BASE = `${window.location.protocol}//${window.location.host}/api`;
+        
+        let horses = [];
+        let predictions = [];
+        let results = [];
+        let editingHorseId = null;
+        let editingResultId = null;
+
+        // タブ切り替え
+        async function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            // データを再読み込み
+            if (tabName === 'horses') {
+                await loadHorses();
+            } else if (tabName === 'predictions') {
+                await loadPredictions();
+            } else if (tabName === 'results') {
+                // 結果タブを開くときはhorsesも読み込む（ドロップダウン用）
+                if (horses.length === 0) {
+                    await loadHorses();
+                }
+                await loadResults();
+            }
+        }
+
+        // ========== 出馬表管理 ==========
+        async function loadHorses() {
+            try {
+                const response = await fetch(`${API_BASE}/horses`);
+                horses = await response.json();
+                renderHorses();
+            } catch (error) {
+                showStatus('horsesStatus', 'データの取得に失敗しました', false);
+                console.error('出馬データの取得エラー:', error);
+            }
+        }
+
+        function renderHorses() {
+            const tbody = document.getElementById('horsesTable');
+            if (horses.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-message">データがありません</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = horses.map(horse => `
+                <tr>
+                    <td>${horse.id}</td>
+                    <td><strong>${horse.number}</strong></td>
+                    <td>${horse.name}</td>
+                    <td>${horse.theme}</td>
+                    <td>${horse.odds}円</td>
+                    <td>
+                        <button class="btn btn-edit" onclick="editHorse(${horse.id})">編集</button>
+                        <button class="btn btn-delete" onclick="deleteHorse(${horse.id})">削除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openHorseModal(horseId = null) {
+            editingHorseId = horseId;
+            const modal = document.getElementById('horseModal');
+            const title = document.getElementById('horseModalTitle');
+            
+            if (horseId) {
+                title.textContent = '出馬データを編集';
+                const horse = horses.find(h => h.id === horseId);
+                document.getElementById('horseNumber').value = horse.number;
+                document.getElementById('horseName').value = horse.name;
+                document.getElementById('horseTheme').value = horse.theme;
+                document.getElementById('horseOdds').value = horse.odds;
+            } else {
+                title.textContent = '出馬データを追加';
+                document.getElementById('horseNumber').value = '';
+                document.getElementById('horseName').value = '';
+                document.getElementById('horseTheme').value = '';
+                document.getElementById('horseOdds').value = '';
+            }
+            
+            document.getElementById('horseModalStatus').innerHTML = '';
+            modal.classList.add('active');
+        }
+
+        function closeHorseModal() {
+            document.getElementById('horseModal').classList.remove('active');
+            editingHorseId = null;
+        }
+
+        async function saveHorse() {
+            const horse = {
+                number: parseInt(document.getElementById('horseNumber').value),
+                name: document.getElementById('horseName').value,
+                theme: document.getElementById('horseTheme').value,
+                odds: parseFloat(document.getElementById('horseOdds').value)
+            };
+
+            if (!horse.number || !horse.name || !horse.theme || !horse.odds) {
+                showStatus('horseModalStatus', 'すべての項目を入力してください', false);
+                return;
+            }
+
+            try {
+                let response;
+                if (editingHorseId) {
+                    response = await fetch(`${API_BASE}/horses/${editingHorseId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(horse)
+                    });
+                } else {
+                    response = await fetch(`${API_BASE}/horses`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(horse)
+                    });
+                }
+
+                if (response.ok) {
+                    showStatus('horseModalStatus', editingHorseId ? '更新しました' : '追加しました', true);
+                    await loadHorses();
+                    setTimeout(() => {
+                        closeHorseModal();
+                    }, 1000);
+                } else {
+                    const error = await response.json();
+                    showStatus('horseModalStatus', 'エラー: ' + error.error, false);
+                }
+            } catch (error) {
+                showStatus('horseModalStatus', '保存に失敗しました', false);
+                console.error('保存エラー:', error);
+            }
+        }
+
+        function editHorse(id) {
+            openHorseModal(id);
+        }
+
+        async function deleteHorse(id) {
+            if (!confirm('本当に削除しますか？')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/horses/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showStatus('horsesStatus', '削除しました', true);
+                    await loadHorses();
+                } else {
+                    showStatus('horsesStatus', '削除に失敗しました', false);
+                }
+            } catch (error) {
+                showStatus('horsesStatus', '削除に失敗しました', false);
+                console.error('削除エラー:', error);
+            }
+        }
+
+        // ========== 予想管理 ==========
+        async function loadPredictions() {
+            try {
+                const response = await fetch(`${API_BASE}/predictions`);
+                predictions = await response.json();
+                renderPredictions();
+            } catch (error) {
+                showStatus('predictionsStatus', 'データの取得に失敗しました', false);
+                console.error('予想データの取得エラー:', error);
+            }
+        }
+
+        function renderPredictions() {
+            const tbody = document.getElementById('predictionsTable');
+            if (predictions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-message">データがありません</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = predictions.map(pred => {
+                const date = new Date(pred.created_at);
+                const dateStr = date.toLocaleString('ja-JP');
+                return `
+                    <tr>
+                        <td>${pred.id}</td>
+                        <td>${pred.predictor_name}</td>
+                        <td>${pred.bet_type}</td>
+                        <td>${pred.numbers.join(', ')}</td>
+                        <td>${dateStr}</td>
+                        <td>
+                            <button class="btn btn-delete" onclick="deletePrediction(${pred.id})">削除</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function deletePrediction(id) {
+            if (!confirm('本当に削除しますか？')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/predictions/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showStatus('predictionsStatus', '削除しました', true);
+                    await loadPredictions();
+                } else {
+                    showStatus('predictionsStatus', '削除に失敗しました', false);
+                }
+            } catch (error) {
+                showStatus('predictionsStatus', '削除に失敗しました', false);
+                console.error('削除エラー:', error);
+            }
+        }
+
+        // ========== 最終結果管理 ==========
+        async function loadResults() {
+            try {
+                const response = await fetch(`${API_BASE}/results`);
+                results = await response.json();
+                renderResults();
+            } catch (error) {
+                showStatus('resultsStatus', 'データの取得に失敗しました', false);
+                console.error('結果データの取得エラー:', error);
+            }
+        }
+
+        function renderResults() {
+            const tbody = document.getElementById('resultsTable');
+            if (results.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-message">データがありません</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = results.map(result => `
+                <tr>
+                    <td>${result.id}</td>
+                    <td><strong>${result.rank}位</strong></td>
+                    <td>${result.horse_number}</td>
+                    <td>${result.horse_name}</td>
+                    <td>
+                        <button class="btn btn-edit" onclick="editResult(${result.id})">編集</button>
+                        <button class="btn btn-delete" onclick="deleteResult(${result.id})">削除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateResultHorseInfo() {
+            const select = document.getElementById('resultHorseSelect');
+            const selectedHorseId = select.value;
+            
+            if (selectedHorseId) {
+                const horse = horses.find(h => h.id === parseInt(selectedHorseId));
+                if (horse) {
+                    document.getElementById('resultHorseNumber').value = horse.number;
+                    document.getElementById('resultHorseName').value = horse.name;
+                }
+            } else {
+                document.getElementById('resultHorseNumber').value = '';
+                document.getElementById('resultHorseName').value = '';
+            }
+        }
+
+        function openResultModal(resultId = null) {
+            editingResultId = resultId;
+            const modal = document.getElementById('resultModal');
+            const title = document.getElementById('resultModalTitle');
+            const select = document.getElementById('resultHorseSelect');
+            
+            // ドロップダウンを更新
+            select.innerHTML = '<option value="">-- 選択してください --</option>';
+            horses.forEach(horse => {
+                const option = document.createElement('option');
+                option.value = horse.id;
+                option.textContent = `${horse.number}番 ${horse.name} - ${horse.theme}`;
+                select.appendChild(option);
+            });
+            
+            if (resultId) {
+                title.textContent = '結果データを編集';
+                const result = results.find(r => r.id === resultId);
+                document.getElementById('resultRank').value = result.rank;
+                
+                // 既存の結果に対応する馬を選択
+                const existingHorse = horses.find(h => h.number === result.horse_number && h.name === result.horse_name);
+                if (existingHorse) {
+                    select.value = existingHorse.id;
+                    document.getElementById('resultHorseNumber').value = existingHorse.number;
+                    document.getElementById('resultHorseName').value = existingHorse.name;
+                } else {
+                    // 出馬表に存在しない場合は、手動入力欄を表示
+                    select.value = '';
+                    document.getElementById('resultHorseNumber').value = result.horse_number;
+                    document.getElementById('resultHorseName').value = result.horse_name;
+                    document.getElementById('resultHorseNumber').parentElement.style.display = 'block';
+                    document.getElementById('resultHorseName').parentElement.style.display = 'block';
+                    document.getElementById('resultHorseNumber').readOnly = false;
+                    document.getElementById('resultHorseName').readOnly = false;
+                }
+            } else {
+                title.textContent = '結果データを追加';
+                document.getElementById('resultRank').value = '';
+                select.value = '';
+                document.getElementById('resultHorseNumber').value = '';
+                document.getElementById('resultHorseName').value = '';
+                document.getElementById('resultHorseNumber').parentElement.style.display = 'none';
+                document.getElementById('resultHorseName').parentElement.style.display = 'none';
+                document.getElementById('resultHorseNumber').readOnly = true;
+                document.getElementById('resultHorseName').readOnly = true;
+            }
+            
+            document.getElementById('resultModalStatus').innerHTML = '';
+            modal.classList.add('active');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultModal').classList.remove('active');
+            editingResultId = null;
+            // フォームをリセット
+            document.getElementById('resultHorseNumber').parentElement.style.display = 'none';
+            document.getElementById('resultHorseName').parentElement.style.display = 'none';
+            document.getElementById('resultHorseNumber').readOnly = true;
+            document.getElementById('resultHorseName').readOnly = true;
+        }
+
+        async function saveResult() {
+            const select = document.getElementById('resultHorseSelect');
+            const selectedHorseId = select.value;
+            
+            let horse_number, horse_name;
+            
+            if (selectedHorseId) {
+                // ドロップダウンから選択された場合
+                const horse = horses.find(h => h.id === parseInt(selectedHorseId));
+                if (!horse) {
+                    showStatus('resultModalStatus', '選択された馬が見つかりません', false);
+                    return;
+                }
+                horse_number = horse.number;
+                horse_name = horse.name;
+            } else {
+                // 手動入力の場合（編集時のみ）
+                horse_number = parseInt(document.getElementById('resultHorseNumber').value);
+                horse_name = document.getElementById('resultHorseName').value;
+            }
+            
+            const result = {
+                rank: parseInt(document.getElementById('resultRank').value),
+                horse_number: horse_number,
+                horse_name: horse_name
+            };
+
+            if (!result.rank || !result.horse_number || !result.horse_name) {
+                showStatus('resultModalStatus', 'すべての項目を入力してください', false);
+                return;
+            }
+
+            try {
+                let response;
+                if (editingResultId) {
+                    // 編集モードの場合 (PUT)
+                    response = await fetch(`${API_BASE}/results/${editingResultId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(result)
+                    });
+                } else {
+                    // 新規追加モードの場合 (POST)
+                    response = await fetch(`${API_BASE}/results`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(result)
+                    });
+                }
+
+                if (response.ok) {
+                    showStatus('resultModalStatus', editingResultId ? '更新しました' : '追加しました', true);
+                    await loadResults();
+                    setTimeout(() => {
+                        closeResultModal();
+                    }, 1000);
+                } else {
+                    const error = await response.json();
+                    showStatus('resultModalStatus', 'エラー: ' + error.error, false);
+                }
+            } catch (error) {
+                showStatus('resultModalStatus', '保存に失敗しました', false);
+                console.error('保存エラー:', error);
+            }
+        }
+
+        function editResult(id) {
+            openResultModal(id);
+        }
+
+        async function deleteResult(id) {
+            if (!confirm('本当に削除しますか？')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/results/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showStatus('resultsStatus', '削除しました', true);
+                    await loadResults();
+                } else {
+                    showStatus('resultsStatus', '削除に失敗しました', false);
+                }
+            } catch (error) {
+                showStatus('resultsStatus', '削除に失敗しました', false);
+                console.error('削除エラー:', error);
+            }
+        }
+
+        // ステータスメッセージ表示
+        function showStatus(elementId, message, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status-message ${isSuccess ? 'status-success' : 'status-error'}">${message}</div>`;
+            setTimeout(() => {
+                element.innerHTML = '';
+            }, 3000);
+        }
+
+        // 初期化
+        async function init() {
+            await loadHorses();
+        }
+
+        init();
+    </script>
+</body>
+</html>
+
