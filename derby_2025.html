@@ -269,12 +269,37 @@
         box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         max-height: 90vh;   /* 画面の高さの90%を上限にする */
         overflow-y: auto;   /* 中身がはみ出したら縦スクロールバーを出す */
+        position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: #ddd;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: #999;
+            color: #fff;
         }
 
         .modal h2 {
             color: #8B4513;
             margin-bottom: 20px;
             text-align: center;
+            padding-right: 30px;
         }
 
         .form-group {
@@ -503,6 +528,7 @@
                     <tr>
                         <th>馬番</th>
                         <th>馬名（メンバー）</th>
+                        <th>騎手</th>
                         <th>卒論テーマ</th>
                         <th>オッズ</th>
                     </tr>
@@ -536,6 +562,7 @@
 
     <div id="modal" class="modal">
         <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
             <h2>予想を追加</h2>
             <div class="form-group">
                 <label>予想者名</label>
@@ -614,8 +641,9 @@
                     <tr>
                         <td class="horse-number">${horse.number}</td>
                         <td><strong>${horse.name}</strong></td>
+                        <td>${horse.jockey || '（未設定）'}</td>
                         <td>${horse.theme}</td>
-                        <td class="odds">${horse.odds}円</td>
+                        <td class="odds">${horse.odds}倍</td>
                     </tr>
                 `;
                 tbody.innerHTML += row;

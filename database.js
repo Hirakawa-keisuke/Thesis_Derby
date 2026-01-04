@@ -27,6 +27,7 @@ function initDatabase() {
                     number INTEGER UNIQUE NOT NULL,
                     name TEXT NOT NULL,
                     theme TEXT NOT NULL,
+                    jockey TEXT,
                     odds REAL NOT NULL,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
@@ -34,6 +35,11 @@ function initDatabase() {
                 if (err) {
                     console.error('horsesテーブル作成エラー:', err);
                     reject(err);
+                } else {
+                    // 既存のテーブルに騎手カラムを追加（マイグレーション）
+                    db.run(`ALTER TABLE horses ADD COLUMN jockey TEXT`, (alterErr) => {
+                        // エラーは無視（カラムが既に存在する場合）
+                    });
                 }
             });
 
@@ -94,8 +100,8 @@ const horsesDB = {
         return new Promise((resolve, reject) => {
             const db = getDB();
             db.run(
-                'INSERT INTO horses (number, name, theme, odds) VALUES (?, ?, ?, ?)',
-                [horse.number, horse.name, horse.theme, horse.odds],
+                'INSERT INTO horses (number, name, theme, jockey, odds) VALUES (?, ?, ?, ?, ?)',
+                [horse.number, horse.name, horse.theme, horse.jockey || null, horse.odds],
                 function(err) {
                     if (err) reject(err);
                     else resolve({ id: this.lastID, ...horse });
@@ -110,8 +116,8 @@ const horsesDB = {
         return new Promise((resolve, reject) => {
             const db = getDB();
             db.run(
-                'UPDATE horses SET number = ?, name = ?, theme = ?, odds = ? WHERE id = ?',
-                [horse.number, horse.name, horse.theme, horse.odds, id],
+                'UPDATE horses SET number = ?, name = ?, theme = ?, jockey = ?, odds = ? WHERE id = ?',
+                [horse.number, horse.name, horse.theme, horse.jockey || null, horse.odds, id],
                 function(err) {
                     if (err) reject(err);
                     else resolve({ id, ...horse });

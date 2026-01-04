@@ -346,6 +346,7 @@
                         <th>ID</th>
                         <th>馬番</th>
                         <th>メンバー名</th>
+                        <th>騎手</th>
                         <th>卒論テーマ</th>
                         <th>オッズ</th>
                         <th>操作</th>
@@ -416,6 +417,10 @@
             <div class="form-group">
                 <label>メンバー名</label>
                 <input type="text" id="horseName" required>
+            </div>
+            <div class="form-group">
+                <label>騎手</label>
+                <input type="text" id="horseJockey" placeholder="騎手名を入力（任意）">
             </div>
             <div class="form-group">
                 <label>卒論テーマ</label>
@@ -509,7 +514,7 @@
         function renderHorses() {
             const tbody = document.getElementById('horsesTable');
             if (horses.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-message">データがありません</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-message">データがありません</td></tr>';
                 return;
             }
             
@@ -518,8 +523,9 @@
                     <td>${horse.id}</td>
                     <td><strong>${horse.number}</strong></td>
                     <td>${horse.name}</td>
+                    <td>${horse.jockey || '（未設定）'}</td>
                     <td>${horse.theme}</td>
-                    <td>${horse.odds}円</td>
+                    <td>${horse.odds}倍</td>
                     <td>
                         <button class="btn btn-edit" onclick="editHorse(${horse.id})">編集</button>
                         <button class="btn btn-delete" onclick="deleteHorse(${horse.id})">削除</button>
@@ -538,12 +544,14 @@
                 const horse = horses.find(h => h.id === horseId);
                 document.getElementById('horseNumber').value = horse.number;
                 document.getElementById('horseName').value = horse.name;
+                document.getElementById('horseJockey').value = horse.jockey || '';
                 document.getElementById('horseTheme').value = horse.theme;
                 document.getElementById('horseOdds').value = horse.odds;
             } else {
                 title.textContent = '出馬データを追加';
                 document.getElementById('horseNumber').value = '';
                 document.getElementById('horseName').value = '';
+                document.getElementById('horseJockey').value = '';
                 document.getElementById('horseTheme').value = '';
                 document.getElementById('horseOdds').value = '';
             }
@@ -561,12 +569,13 @@
             const horse = {
                 number: parseInt(document.getElementById('horseNumber').value),
                 name: document.getElementById('horseName').value,
+                jockey: document.getElementById('horseJockey').value,
                 theme: document.getElementById('horseTheme').value,
                 odds: parseFloat(document.getElementById('horseOdds').value)
             };
 
             if (!horse.number || !horse.name || !horse.theme || !horse.odds) {
-                showStatus('horseModalStatus', 'すべての項目を入力してください', false);
+                showStatus('horseModalStatus', '必須項目を入力してください', false);
                 return;
             }
 
